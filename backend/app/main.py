@@ -39,9 +39,21 @@ def get_context(settings: Settings = Depends(get_settings)) -> ApplicationContex
     return ApplicationContext(settings)
 
 
+def _derive_storage_name(upload: UploadFile) -> str:
+    """Return a sanitized filename for the uploaded file."""
+
+    original = upload.filename or ""
+    sanitized = Path(original).name
+    sanitized = sanitized.strip()
+    if not sanitized:
+        sanitized = f"upload-{generate_document_id()}"
+    return sanitized
+
+
 def _persist_uploaded_file(upload: UploadFile, storage_dir: Path) -> Path:
     storage_dir.mkdir(parents=True, exist_ok=True)
-    file_path = storage_dir / upload.filename
+    safe_name = _derive_storage_name(upload)
+    file_path = storage_dir / safe_name
     with file_path.open("wb") as f:
         f.write(upload.file.read())
     return file_path
@@ -95,7 +107,7 @@ async def upload_document(
 
     record = DocumentRecord(
         id=doc_id,
-        filename=file.filename,
+        filename=file_path.name,
         storage_path=file_path,
         status=DocumentStatus.PROCESSING,
         metadata={"content_length": str(len(parsed.text))},

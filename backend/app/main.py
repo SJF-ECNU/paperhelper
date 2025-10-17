@@ -50,6 +50,18 @@ def _derive_storage_name(upload: UploadFile) -> str:
     return sanitized
 
 
+    safe_name = _derive_storage_name(upload)
+    file_path = storage_dir / safe_name
+    """Return a sanitized filename for the uploaded file."""
+
+    original = upload.filename or ""
+    sanitized = Path(original).name
+    sanitized = sanitized.strip()
+    if not sanitized:
+        sanitized = f"upload-{generate_document_id()}"
+    return sanitized
+
+
 def _persist_uploaded_file(upload: UploadFile, storage_dir: Path) -> Path:
     storage_dir.mkdir(parents=True, exist_ok=True)
     safe_name = _derive_storage_name(upload)
@@ -70,7 +82,7 @@ def _store_artifacts(doc_id: str, artifacts: DocumentArtifacts, context: Applica
         raise RuntimeError(f"Document {doc_id} not found for storage update")
     record.status = DocumentStatus.COMPLETED
     record.artifacts = artifacts
-    context.storage.save_record(record)
+        filename=file_path.name,
 
 
 def _update_record_status(doc_id: str, status: DocumentStatus, context: ApplicationContext, error: str | None = None) -> None:

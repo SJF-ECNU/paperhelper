@@ -37,7 +37,7 @@ Goal: local web app that accepts academic papers, runs a LangGraph-powered agent
 - [ ] ensure .env template reflects OpenAI endpoint settings and per-model knobs (temperature, max tokens).
 
 ### 5.3 Document Ingestion Pipeline
-- [ ] Implement upload endpoint storing files in temp dir and queuing for processing.
+- [ ] Implement upload endpoint storing files in temp dir and queuing for processing; enforce the same file validation (size, type) server-side within the future `POST /api/documents` handler before queuing.
 - [ ] Build PDF/Markdown loader with fallback OCR hook (placeholder).
 - [ ] Normalize text: split into sections, maintain structure (headings, figure captions).
 - [ ] Persist raw text + metadata for reuse.
